@@ -1,0 +1,183 @@
+# ic_flux_t2i_bridge.py
+# Bridge: InstantCharacter tokens -> FLUX t2i-adapter (ComfyUI)
+#
+# 用法：
+#   1) 上游用 EncodeRefImageIC 得到 ic_image_tokens（(tokens, meta)）
+#   2) 本节点把它包装成 t2i-adapter 负载，写入 conditioning 的
+#      transformer_options['t2i_adapter'] 和 model_options['t2i_adapter']
+#   3) 去重：同一类型(payload['type'] == 'instantcharacter_flux_t2i')先清空再写入
+#
+# 可选冒烟测试（debug_smoke=True）：把 strength 临时乘以 smoke_factor，便于确认“被消费了”。
+
+import torch
+from typing import List, Tuple, Dict, Any
+
+class ICFluxT2IAdapterBridge:
+    CATEGORY = "InstantCharacterFlux"
+    RETURN_TYPES = ("CONDITIONING",)
+    RETURN_NAMES = ("conditioning",)
+    FUNCTION = "apply"
+    OUTPUT_NODE = False
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "conditioning": ("CONDITIONING",),
+                "ic_image_tokens": ("IC_IMAGE_TOKENS",),
+                # t2i 常用控制项
+                "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 4.0, "step": 0.01}),
+                "start_percent": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "end_percent": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+            },
+            "optional": {
+                # 冒烟测试：把 strength 放大，方便肉眼验证“生效”
+                "debug_smoke": ("BOOLEAN", {"default": False}),
+                "smoke_factor": ("FLOAT", {"default": 3.0, "min": 1.0, "max": 10.0, "step": 0.5}),
+                # 兼容不同实现的键名（有的分发在 't2i_adapter'，有的在 'adapters'）
+                "also_write_adapters_key": ("BOOLEAN", {"default": True}),
+                # 仅允许一条 t2i 负载（防止堆积）
+                "dedupe": ("BOOLEAN", {"default": True}),
+                # 只在这些 block 生效（留空=让下游决定；否则给出整型列表）
+                "blocks_single": ("STRING", {"default": ""}),  # e.g. "0,1,2,3,4"
+                "blocks_double": ("STRING", {"default": ""}),
+            }
+        }
+
+    def _parse_blocks(self, s: str):
+        if not s.strip():
+            return None
+        try:
+            vals = [int(x.strip()) for x in s.split(",") if x.strip() != ""]
+            return vals
+        except Exception:
+            return None
+
+    def _inject_to_dict(self, host: Dict[str, Any], key: str, payload: Dict[str, Any], dedupe: bool):
+        lst = host.get(key, [])
+        if not isinstance(lst, list):
+            lst = []
+        if dedupe:
+            lst = [p for p in lst if not (isinstance(p, dict) and p.get("type") == "instantcharacter_flux_t2i")]
+        lst.append(payload)
+        host[key] = lst
+        return lst
+
+    def apply(self,
+              conditioning,
+              ic_image_tokens,
+              strength: float,
+              start_percent: float,
+              end_percent: float,
+              debug_smoke: bool = False,
+              smoke_factor: float = 3.0,
+              also_write_adapters_key: bool = True,
+              dedupe: bool = True,
+              blocks_single: str = "",
+              blocks_double: str = ""
+              ):
+        if not conditioning:
+            print("[IC→t2i][WARN] empty conditioning; skip.")
+            return (conditioning,)
+
+        tokens, meta = ic_image_tokens  # tokens: [B, T, H]
+        if not torch.is_tensor(tokens):
+            print("[IC→t2i][ERROR] tokens is not a Tensor; skip.")
+            return (conditioning,)
+
+        # 允许冒烟测试：强行放大 strength（不改 tokens 数值，避免数值爆）
+        eff_strength = float(strength) * (float(smoke_factor) if debug_smoke else 1.0)
+
+        # 解析 blocks（若未给则用 meta）
+        b_single = self._parse_blocks(blocks_single) or meta.get("blocks_single", None)
+        b_double = self._parse_blocks(blocks_double) or meta.get("blocks_double", None)
+
+        # t2i-adapter 的载荷（尽量自说明字段名）
+        payload = {
+            "type": "instantcharacter_flux_t2i",
+            # 不复制大 tensor，直接引用，确保被 sampler 端拿到的是同一 Tensor（避免显存重复）
+            "tokens": tokens,                 # [B, T, H]
+            "hidden": int(meta.get("hidden", tokens.shape[-1])),
+            "tokens_count": int(tokens.shape[1]),
+            "strength": eff_strength,
+            "start": float(start_percent),
+            "end": float(end_percent),
+        }
+        if b_single is not None:
+            payload["blocks_single"] = list(map(int, b_single))
+        if b_double is not None:
+            payload["blocks_double"] = list(map(int, b_double))
+
+        new_cond = []
+        for idx, item in enumerate(conditioning):
+            if not isinstance(item, (list, tuple)) or len(item) < 2:
+                new_cond.append(item)
+                continue
+
+            c, w, *rest = item
+
+            # 找 cond tensor；保持 cond 为 Tensor
+            if torch.is_tensor(c):
+                tensor_cond = c
+                carried_opts = None
+            elif isinstance(c, dict) and torch.is_tensor(c.get("cond", None)):
+                tensor_cond = c["cond"]
+                # 把 c 里已有的 options 带出来，我们会合并到位置3的 opts
+                carried_opts = {
+                    "transformer_options": dict(c.get("transformer_options", {})) if isinstance(c.get("transformer_options", {}), dict) else {},
+                    "model_options": dict(c.get("model_options", {})) if isinstance(c.get("model_options", {}), dict) else {},
+                }
+            else:
+                # 无法识别，保持原样
+                new_cond.append(item)
+                print(f"[IC→t2i][SKIP] item[{idx}] has no Tensor cond; untouched.")
+                continue
+
+            # 取/建 第3位的选项 dict
+            if len(rest) >= 1 and isinstance(rest[0], dict):
+                opts = dict(rest[0])
+                rest = rest[1:]
+            else:
+                opts = {}
+
+            # 确保 transformer_options / model_options 存在
+            topts = dict(opts.get("transformer_options", {}))
+            mopts = dict(opts.get("model_options", {}))
+
+            # 合并 carried（若 c 是 dict）
+            if isinstance(carried_opts, dict):
+                for k, v in carried_opts.get("transformer_options", {}).items():
+                    topts.setdefault(k, v)
+                for k, v in carried_opts.get("model_options", {}).items():
+                    mopts.setdefault(k, v)
+
+            # 注入到 t2i_adapter；并可选同步写 adapters 键，兼容不同实现
+            before_t = len(topts.get("t2i_adapter", [])) if isinstance(topts.get("t2i_adapter", []), list) else 0
+            lst_t = self._inject_to_dict(topts, "t2i_adapter", payload, dedupe)
+            after_t = len(lst_t)
+
+            before_m = len(mopts.get("t2i_adapter", [])) if isinstance(mopts.get("t2i_adapter", []), list) else 0
+            lst_m = self._inject_to_dict(mopts, "t2i_adapter", payload, dedupe)
+            after_m = len(lst_m)
+
+            if also_write_adapters_key:
+                # 有些 t2i 实现使用 'adapters' 键名
+                self._inject_to_dict(topts, "adapters", payload, dedupe)
+                self._inject_to_dict(mopts, "adapters", payload, dedupe)
+
+            print(f"[IC→t2i][INJECT] item[{idx}] strength={eff_strength:.3f}, range=({start_percent},{end_percent}) "
+                  f"(t2i_adapter: t {before_t}->{after_t} | m {before_m}->{after_m})")
+
+            opts["transformer_options"] = topts
+            opts["model_options"] = mopts
+            new_cond.append((tensor_cond, w, opts, *rest))
+
+        return (new_cond,)
+
+
+NODE_CLASS_MAPPINGS = {
+    "ICFluxT2IAdapterBridge": ICFluxT2IAdapterBridge,
+}
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "ICFluxT2IAdapterBridge": "IC → FLUX t2i-Adapter Bridge",
+}
