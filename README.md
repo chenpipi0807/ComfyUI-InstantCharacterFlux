@@ -1,0 +1,2 @@
+# ComfyUI-InstantCharacterFlux
+InstantCharacter2Flux
