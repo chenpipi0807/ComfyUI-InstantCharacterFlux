@@ -1,8 +1,8 @@
 {
   "id": "ebfba754-25a5-44f2-a2b8-05c797ac0d59",
   "revision": 0,
-  "last_node_id": 50,
-  "last_link_id": 66,
+  "last_node_id": 57,
+  "last_link_id": 82,
   "nodes": [
     {
       "id": 1,
@@ -90,7 +90,7 @@
         46
       ],
       "flags": {},
-      "order": 18,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -101,7 +101,7 @@
         {
           "name": "conditioning",
           "type": "CONDITIONING",
-          "link": 64
+          "link": 77
         }
       ],
       "outputs": [
@@ -200,7 +200,7 @@
         106
       ],
       "flags": {},
-      "order": 19,
+      "order": 18,
       "mode": 0,
       "inputs": [
         {
@@ -249,109 +249,6 @@
         "Node name for S&R": "SamplerCustomAdvanced"
       },
       "widgets_values": []
-    },
-    {
-      "id": 23,
-      "type": "LoadSigLIPVision",
-      "pos": [
-        2773.12451171875,
-        893.0227661132812
-      ],
-      "size": [
-        397.6454162597656,
-        62.33512878417969
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "siglip_encoder",
-          "type": "VISION_ENCODER",
-          "links": [
-            25
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadSigLIPVision"
-      },
-      "widgets_values": [
-        "instantCharacter\\siglip-so400m-patch14-384"
-      ]
-    },
-    {
-      "id": 24,
-      "type": "LoadDINOv2Vision",
-      "pos": [
-        2782.27685546875,
-        1024.521728515625
-      ],
-      "size": [
-        362.482666015625,
-        93.64431762695312
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "dino_encoder",
-          "type": "VISION_ENCODER",
-          "links": [
-            26
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadDINOv2Vision"
-      },
-      "widgets_values": [
-        "instantCharacter\\dinov2-giant"
-      ]
-    },
-    {
-      "id": 18,
-      "type": "CLIPTextEncodeFlux",
-      "pos": [
-        3108.345947265625,
-        491.52679443359375
-      ],
-      "size": [
-        400,
-        200
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 19
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            55
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.49",
-        "Node name for S&R": "CLIPTextEncodeFlux"
-      },
-      "widgets_values": [
-        "A man is playing the guitar on the street.Anime style.",
-        "A man is playing the guitar on the street.Anime style.",
-        3.5
-      ]
     },
     {
       "id": 3,
@@ -408,7 +305,7 @@
         82
       ],
       "flags": {},
-      "order": 5,
+      "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -431,11 +328,397 @@
       ]
     },
     {
+      "id": 9,
+      "type": "VAEDecode",
+      "pos": [
+        3360.40625,
+        -90.70796203613281
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 5
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.49",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 15,
+      "type": "SaveImage",
+      "pos": [
+        4440,
+        1240
+      ],
+      "size": [
+        388.8980712890625,
+        556.1713256835938
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.49",
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 29,
+      "type": "LoadImage",
+      "pos": [
+        4430,
+        860
+      ],
+      "size": [
+        270,
+        314.00006103515625
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            33
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.49",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "USR-M-04.png",
+        "image"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "DualCLIPLoader",
+      "pos": [
+        2673.12109375,
+        492.82373046875
+      ],
+      "size": [
+        270,
+        130
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            71
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.49",
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "widgets_values": [
+        "clip_l.safetensors",
+        "t5xxl_fp8_e4m3fn.safetensors",
+        "flux",
+        "default"
+      ]
+    },
+    {
+      "id": 53,
+      "type": "CLIPTextEncode",
+      "pos": [
+        3031.462646484375,
+        488.200439453125
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 71
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            76
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.49",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "A man is playing the guitar on the street.Anime style."
+      ]
+    },
+    {
+      "id": 23,
+      "type": "LoadSigLIPVision",
+      "pos": [
+        2744.916259765625,
+        902.8956298828125
+      ],
+      "size": [
+        397.6454162597656,
+        62.33512878417969
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "siglip_encoder",
+          "type": "VISION_ENCODER",
+          "links": [
+            78
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadSigLIPVision"
+      },
+      "widgets_values": [
+        "instantCharacter\\siglip-so400m-patch14-384"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 24,
+      "type": "LoadDINOv2Vision",
+      "pos": [
+        2754.068603515625,
+        1034.394775390625
+      ],
+      "size": [
+        362.482666015625,
+        93.64431762695312
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "dino_encoder",
+          "type": "VISION_ENCODER",
+          "links": [
+            79
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadDINOv2Vision"
+      },
+      "widgets_values": [
+        "instantCharacter\\dinov2-giant"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 30,
+      "type": "PIP_longsize",
+      "pos": [
+        4817.74072265625,
+        855.4737548828125
+      ],
+      "size": [
+        270,
+        122
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 33
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            81
+          ]
+        },
+        {
+          "name": "width_int",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "height_int",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "chenpipi0807/PIP_Tool",
+        "ver": "b66e80258ec17dce5a4dd12716ec50f4a1c97c3f",
+        "Node name for S&R": "PIP_longsize"
+      },
+      "widgets_values": [
+        512,
+        "无损输出"
+      ]
+    },
+    {
+      "id": 31,
+      "type": "LoadICWeights",
+      "pos": [
+        2761.22802734375,
+        1198.077880859375
+      ],
+      "size": [
+        375.7490234375,
+        80.53280639648438
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "ic_weights",
+          "type": "IC_WEIGHTS",
+          "links": [
+            80
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadICWeights"
+      },
+      "widgets_values": [
+        "instantCharacter\\instantcharacter_ip-adapter.bin"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 56,
+      "type": "EncodeRefImageIC",
+      "pos": [
+        3214.34375,
+        904.9592895507812
+      ],
+      "size": [
+        315.3746032714844,
+        86
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 81
+        },
+        {
+          "name": "ic_weights",
+          "type": "IC_WEIGHTS",
+          "link": 80
+        },
+        {
+          "name": "siglip_encoder",
+          "type": "VISION_ENCODER",
+          "link": 78
+        },
+        {
+          "name": "dino_encoder",
+          "type": "VISION_ENCODER",
+          "link": 79
+        }
+      ],
+      "outputs": [
+        {
+          "name": "ic_image_tokens",
+          "type": "IC_IMAGE_TOKENS",
+          "links": [
+            82
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EncodeRefImageIC"
+      },
+      "widgets_values": []
+    },
+    {
       "id": 34,
       "type": "LoraLoaderModelOnly",
       "pos": [
-        4013.947509765625,
-        693.66796875
+        3990.907470703125,
+        676.6015014648438
       ],
       "size": [
         355.90960693359375,
@@ -467,22 +750,67 @@
       },
       "widgets_values": [
         "ghibli-characters-flux-lora.safetensors",
-        0.9000000000000001
+        0.6000000000000001
+      ]
+    },
+    {
+      "id": 54,
+      "type": "ICFluxOneKnob",
+      "pos": [
+        3609.265380859375,
+        914.275390625
+      ],
+      "size": [
+        270,
+        150
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 76
+        },
+        {
+          "name": "ic_image_tokens",
+          "type": "IC_IMAGE_TOKENS",
+          "link": 82
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            77
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ICFluxOneKnob"
+      },
+      "widgets_values": [
+        1.0000000000000002,
+        0,
+        1,
+        true
       ]
     },
     {
       "id": 7,
       "type": "RandomNoise",
       "pos": [
-        3344.690673828125,
-        1106.160400390625
+        3250.62255859375,
+        1081.6463623046875
       ],
       "size": [
         270,
         82
       ],
       "flags": {},
-      "order": 6,
+      "order": 9,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -500,378 +828,11 @@
         "Node name for S&R": "RandomNoise"
       },
       "widgets_values": [
-        77167637744715,
-        "fixed"
-      ]
-    },
-    {
-      "id": 10,
-      "type": "DualCLIPLoader",
-      "pos": [
-        2673.12109375,
-        492.82373046875
+        196487154947426,
+        "randomize"
       ],
-      "size": [
-        270,
-        130
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            19
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.49",
-        "Node name for S&R": "DualCLIPLoader"
-      },
-      "widgets_values": [
-        "clip_l.safetensors",
-        "t5xxl_fp8_e4m3fn.safetensors",
-        "flux",
-        "default"
-      ]
-    },
-    {
-      "id": 31,
-      "type": "LoadICWeights",
-      "pos": [
-        2789.436279296875,
-        1188.204833984375
-      ],
-      "size": [
-        456.7629089355469,
-        84.0298080444336
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "ic_weights",
-          "type": "IC_WEIGHTS",
-          "links": [
-            35
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadICWeights"
-      },
-      "widgets_values": [
-        "instantCharacter\\instantcharacter_ip-adapter.bin"
-      ]
-    },
-    {
-      "id": 29,
-      "type": "LoadImage",
-      "pos": [
-        1966.26220703125,
-        798.6331787109375
-      ],
-      "size": [
-        270,
-        314
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            33
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.49",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "微信截图_20250719115623.png",
-        "image"
-      ]
-    },
-    {
-      "id": 30,
-      "type": "PIP_longsize",
-      "pos": [
-        2304.264404296875,
-        781.648193359375
-      ],
-      "size": [
-        270,
-        122
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 33
-        }
-      ],
-      "outputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "links": [
-            34
-          ]
-        },
-        {
-          "name": "width_int",
-          "type": "INT",
-          "links": null
-        },
-        {
-          "name": "height_int",
-          "type": "INT",
-          "links": null
-        }
-      ],
-      "properties": {
-        "aux_id": "chenpipi0807/PIP_Tool",
-        "ver": "b66e80258ec17dce5a4dd12716ec50f4a1c97c3f",
-        "Node name for S&R": "PIP_longsize"
-      },
-      "widgets_values": [
-        512,
-        "无损输出"
-      ]
-    },
-    {
-      "id": 15,
-      "type": "SaveImage",
-      "pos": [
-        1969.2303466796875,
-        1171.2261962890625
-      ],
-      "size": [
-        388.8980712890625,
-        556.1713256835938
-      ],
-      "flags": {},
-      "order": 21,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 18
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.49",
-        "Node name for S&R": "SaveImage"
-      },
-      "widgets_values": [
-        "ComfyUI"
-      ]
-    },
-    {
-      "id": 9,
-      "type": "VAEDecode",
-      "pos": [
-        3360.40625,
-        -90.70796203613281
-      ],
-      "size": [
-        140,
-        46
-      ],
-      "flags": {},
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 5
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": 6
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            18
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.49",
-        "Node name for S&R": "VAEDecode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 25,
-      "type": "EncodeRefImageIC",
-      "pos": [
-        3221.005859375,
-        887.8580322265625
-      ],
-      "size": [
-        398.0962829589844,
-        118
-      ],
-      "flags": {},
-      "order": 14,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 34
-        },
-        {
-          "name": "ic_weights",
-          "type": "IC_WEIGHTS",
-          "link": 35
-        },
-        {
-          "name": "siglip_encoder",
-          "type": "VISION_ENCODER",
-          "link": 25
-        },
-        {
-          "name": "dino_encoder",
-          "type": "VISION_ENCODER",
-          "link": 26
-        }
-      ],
-      "outputs": [
-        {
-          "name": "ic_image_tokens",
-          "type": "IC_IMAGE_TOKENS",
-          "links": [
-            54
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "EncodeRefImageIC"
-      },
-      "widgets_values": [
-        1.0000000000000002
-      ]
-    },
-    {
-      "id": 46,
-      "type": "ICFluxT2IAdapterBridge",
-      "pos": [
-        3670,
-        890
-      ],
-      "size": [
-        296.744140625,
-        270
-      ],
-      "flags": {},
-      "order": 16,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 55
-        },
-        {
-          "name": "ic_image_tokens",
-          "type": "IC_IMAGE_TOKENS",
-          "link": 54
-        }
-      ],
-      "outputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "links": [
-            65
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ICFluxT2IAdapterBridge"
-      },
-      "widgets_values": [
-        2.0000000000000004,
-        0,
-        1,
-        true,
-        3,
-        true,
-        true,
-        "",
-        ""
-      ]
-    },
-    {
-      "id": 50,
-      "type": "IC_FluxT2IConcatC",
-      "pos": [
-        4028.801025390625,
-        886.8970336914062
-      ],
-      "size": [
-        322.4302673339844,
-        82
-      ],
-      "flags": {},
-      "order": 17,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 65
-        }
-      ],
-      "outputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "links": [
-            64
-          ]
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "IC_FluxT2IConcatC"
-      },
-      "widgets_values": [
-        1,
-        true
-      ]
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
     }
   ],
   "links": [
@@ -956,52 +917,12 @@
       "IMAGE"
     ],
     [
-      19,
-      10,
-      0,
-      18,
-      0,
-      "CLIP"
-    ],
-    [
-      25,
-      23,
-      0,
-      25,
-      2,
-      "VISION_ENCODER"
-    ],
-    [
-      26,
-      24,
-      0,
-      25,
-      3,
-      "VISION_ENCODER"
-    ],
-    [
       33,
       29,
       0,
       30,
       0,
       "IMAGE"
-    ],
-    [
-      34,
-      30,
-      0,
-      25,
-      0,
-      "IMAGE"
-    ],
-    [
-      35,
-      31,
-      0,
-      25,
-      1,
-      "IC_WEIGHTS"
     ],
     [
       42,
@@ -1020,46 +941,92 @@
       "MODEL"
     ],
     [
-      54,
-      25,
+      71,
+      10,
       0,
-      46,
-      1,
-      "IC_IMAGE_TOKENS"
+      53,
+      0,
+      "CLIP"
     ],
     [
-      55,
-      18,
+      76,
+      53,
       0,
-      46,
+      54,
       0,
       "CONDITIONING"
     ],
     [
-      64,
-      50,
+      77,
+      54,
       0,
       5,
       1,
       "CONDITIONING"
     ],
     [
-      65,
-      46,
+      78,
+      23,
       0,
-      50,
+      56,
+      2,
+      "VISION_ENCODER"
+    ],
+    [
+      79,
+      24,
       0,
-      "CONDITIONING"
+      56,
+      3,
+      "VISION_ENCODER"
+    ],
+    [
+      80,
+      31,
+      0,
+      56,
+      1,
+      "IC_WEIGHTS"
+    ],
+    [
+      81,
+      30,
+      0,
+      56,
+      0,
+      "IMAGE"
+    ],
+    [
+      82,
+      56,
+      0,
+      54,
+      1,
+      "IC_IMAGE_TOKENS"
     ]
   ],
-  "groups": [],
+  "groups": [
+    {
+      "id": 1,
+      "title": "ComfyUI-InstantCharacterFlux",
+      "bounding": [
+        2734.916259765625,
+        823.170166015625,
+        1336.6785888671875,
+        517.8098754882812
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.9453197604537076,
+      "scale": 0.8593816004124665,
       "offset": [
-        -1573.380919436356,
-        -377.8271687530694
+        -2375.792781552814,
+        -205.94867307251548
       ]
     },
     "frontendVersion": "1.23.4",
