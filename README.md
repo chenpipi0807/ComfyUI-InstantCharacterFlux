@@ -3,7 +3,7 @@ InstantCharacter2Flux
 
 
 <pre>
-```plaintext
+```结构示意
 ComfyUI\models\instantCharacter
 ├── instantcharacter_ip-adapter.bin
 ├── instantcharacter_ip-adapter.safetensors
