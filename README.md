@@ -2,6 +2,8 @@
 InstantCharacter2Flux
 
 
+<pre>
+```plaintext
 ComfyUI\models\instantCharacter
 ├── instantcharacter_ip-adapter.bin
 ├── instantcharacter_ip-adapter.safetensors
@@ -22,3 +24,5 @@ ComfyUI\models\instantCharacter
     ├── spiece.model
     ├── tokenizer.json
     └── tokenizer_config.json
+```
+</pre>
